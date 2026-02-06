@@ -43,33 +43,56 @@
         contactRect = contactSection.getBoundingClientRect();
     });
 
-    // Track mouse movement - ONLY HORIZONTAL
+    // Track mouse movement - ONLY HORIZONTAL. Use requestAnimationFrame batching
+    let pendingDelta = 0;
+    let ticking = false;
+
     document.addEventListener('mousemove', (e) => {
         currentMouseX = e.clientX;
+
+        // refresh contact rect each move to avoid stale values after scroll/layout changes
+        contactRect = contactSection.getBoundingClientRect();
 
         // Check if cursor is in contact section
         if (isMouseInContactSection(e.clientX, e.clientY)) {
             const horizontalDelta = currentMouseX - lastMouseX;
-            
-            // Only update if horizontal movement is significant
-            if (Math.abs(horizontalDelta) > 0) {
-                updateCylindricalRotation(horizontalDelta);
+            // accumulate delta for next animation frame
+            pendingDelta += horizontalDelta;
+
+            if (!ticking) {
+                ticking = true;
+                requestAnimationFrame(() => {
+                    // Only respond to horizontal movement; ignore tiny jitter
+                    if (Math.abs(pendingDelta) > 0.5) {
+                        updateCylindricalRotation(pendingDelta);
+                    }
+                    pendingDelta = 0;
+                    ticking = false;
+                });
             }
         }
 
         lastMouseX = currentMouseX;
     });
 
-    // Handle touch for mobile
+    // Handle touch for mobile - similar batching
     document.addEventListener('touchmove', (e) => {
         const touch = e.touches[0];
         currentMouseX = touch.clientX;
+        contactRect = contactSection.getBoundingClientRect();
 
         if (isMouseInContactSection(currentMouseX, touch.clientY)) {
             const horizontalDelta = currentMouseX - lastMouseX;
-            
-            if (Math.abs(horizontalDelta) > 0) {
-                updateCylindricalRotation(horizontalDelta);
+            pendingDelta += horizontalDelta;
+            if (!ticking) {
+                ticking = true;
+                requestAnimationFrame(() => {
+                    if (Math.abs(pendingDelta) > 0.5) {
+                        updateCylindricalRotation(pendingDelta);
+                    }
+                    pendingDelta = 0;
+                    ticking = false;
+                });
             }
         }
 
@@ -77,6 +100,9 @@
     }, { passive: true });
 
     function isMouseInContactSection(x, y) {
+        // compute contactRect on demand (defensive) in case layout changed
+        if (!contactSection) return false;
+        contactRect = contactSection.getBoundingClientRect();
         return (
             x >= contactRect.left &&
             x <= contactRect.right &&
