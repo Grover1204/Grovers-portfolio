@@ -121,7 +121,7 @@
 
 .carousel-wrapper {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: center;
     gap: 8px; /* closer */
     position: relative;

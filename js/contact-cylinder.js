@@ -23,8 +23,9 @@
     let currentMouseX = 0;
     let containerRect = carouselWrapper.getBoundingClientRect();
     let contactRect = contactSection.getBoundingClientRect();
-    let rotationState = [0, 0, 0, 0, 0, 0, 0]; // Track rotation for each line (in degrees)
-    let hasCompleted360 = [false, false, false, false, false, false, false]; // Track if line has completed 360° rotation
+    let rotationState = [0, 0, 0, 0, 0, 0, 0]; // Track total rotation for each line (in degrees)
+    let rotationClockwise = [0, 0, 0, 0, 0, 0, 0]; // Track clockwise rotation per line
+    let rotationCounterClockwise = [0, 0, 0, 0, 0, 0, 0]; // Track counter-clockwise rotation per line
 
     // Rotation speed multipliers for each line (relative to movement)
     // Each line rotates at different speed based on position
@@ -115,22 +116,29 @@
     function updateCylindricalRotation(horizontalDelta) {
         // Update rotation state for each line based on horizontal movement
         // Each line rotates around its Y-axis (left-right rotation creates flip effect)
-        // STOP at 360° (or -360° for counter-clockwise)
+        // Allow 360° in each direction independently
         rotationState = rotationState.map((currentRotation, index) => {
-            // Only allow rotation if haven't completed 360° yet
-            if (hasCompleted360[index]) {
-                return currentRotation;
-            }
-
             // Add rotation based on horizontal movement and speed multiplier
             const rotationIncrement = horizontalDelta * rotationSpeeds[index] * 2.5;
-            const newRotation = currentRotation + rotationIncrement;
+            let newRotation = currentRotation + rotationIncrement;
 
-            // Check if we've completed 360° rotation in either direction
-            const absMod = Math.abs(newRotation % 360);
-            if (absMod >= 360 || (absMod <= 5 && Math.abs(newRotation) >= 360)) {
-                hasCompleted360[index] = true;
-                return Math.sign(newRotation) * 360; // Lock at 360 or -360
+            // Track clockwise vs counter-clockwise
+            if (rotationIncrement > 0) {
+                // Clockwise movement
+                rotationClockwise[index] += Math.abs(rotationIncrement);
+                // Stop if clockwise has reached 360°
+                if (rotationClockwise[index] >= 360) {
+                    rotationClockwise[index] = 360;
+                    newRotation = currentRotation; // Don't add more clockwise rotation
+                }
+            } else if (rotationIncrement < 0) {
+                // Counter-clockwise movement
+                rotationCounterClockwise[index] += Math.abs(rotationIncrement);
+                // Stop if counter-clockwise has reached 360°
+                if (rotationCounterClockwise[index] >= 360) {
+                    rotationCounterClockwise[index] = 360;
+                    newRotation = currentRotation; // Don't add more counter-clockwise rotation
+                }
             }
 
             return newRotation;
@@ -141,7 +149,8 @@
             const lineInner = line.querySelector('.text-line-inner');
             if (lineInner) {
                 // Calculate rotation progress (0 to 1) for curved effect intensity
-                const rotationProgress = Math.abs(rotationState[index]) / 360;
+                const totalAbsRotation = Math.abs(rotationState[index]);
+                const rotationProgress = Math.min(totalAbsRotation / 360, 1);
                 // Increase backward curve as rotation progresses
                 const curveAmount = 15 + (rotationProgress * 25); // 15-40deg curve
                 
@@ -179,31 +188,29 @@
     }
 
     function resetRotation() {
-        // Smoothly decelerate rotation (only if not at 360°)
-        rotationState = rotationState.map((rotation, index) => {
-            if (hasCompleted360[index]) {
-                return rotation; // Keep at 360/-360
-            }
-            return rotation * 0.93;
-        });
+        // Smoothly decelerate rotation
+        rotationState = rotationState.map(rotation => rotation * 0.93);
         
-        const hasActiveRotation = rotationState.some((rot, index) => !hasCompleted360[index] && Math.abs(rot) > 0.5);
-        
-        if (hasActiveRotation) {
+        if (Math.max(...rotationState.map(Math.abs)) > 0.5) {
             textLines.forEach((line, index) => {
                 const lineInner = line.querySelector('.text-line-inner');
                 if (lineInner) {
-                    lineInner.style.transform = `rotateY(${rotationState[index]}deg)`;
+                    const totalAbsRotation = Math.abs(rotationState[index]);
+                    const rotationProgress = Math.min(totalAbsRotation / 360, 1);
+                    const curveAmount = 15 + (rotationProgress * 25);
+                    lineInner.style.transform = `rotateY(${rotationState[index]}deg) rotateX(${curveAmount}deg) scaleZ(${1 - rotationProgress * 0.2})`;
                 }
             });
             requestAnimationFrame(resetRotation);
         } else {
-            // Reset only non-completed lines; keep completed lines at 360°
-            rotationState = rotationState.map((rot, index) => hasCompleted360[index] ? rot : 0);
+            // Complete reset
+            rotationState = [0, 0, 0, 0, 0, 0, 0];
+            rotationClockwise = [0, 0, 0, 0, 0, 0, 0];
+            rotationCounterClockwise = [0, 0, 0, 0, 0, 0, 0];
             textLines.forEach((line, index) => {
                 const lineInner = line.querySelector('.text-line-inner');
                 if (lineInner) {
-                    lineInner.style.transform = `rotateY(${rotationState[index]}deg)`;
+                    lineInner.style.transform = 'rotateY(0deg) rotateX(15deg) scaleZ(1)';
                 }
             });
         }
