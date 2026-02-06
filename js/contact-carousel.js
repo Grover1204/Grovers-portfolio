@@ -27,13 +27,13 @@
 
     // Rotation speed multipliers for each line (relative to movement)
     const rotationSpeeds = [
-        3.0,  // Line 1 - fastest
-        2.0,  // Line 2
-        1.2,  // Line 3
-        0.5,  // Line 4 - center, slowest
-        1.2,  // Line 5
-        2.0,  // Line 6
-        3.0   // Line 7 - fastest
+        6.0,  // Line 1 - fastest
+        4.5,  // Line 2
+        3.0,  // Line 3
+        1.5,  // Line 4 - center, slowest
+        3.0,  // Line 5
+        4.5,  // Line 6
+        6.0   // Line 7 - fastest
     ];
 
     // Update container dimensions on resize
@@ -88,7 +88,8 @@
         // Update rotation state for each line based on horizontal movement
         rotationState = rotationState.map((currentRotation, index) => {
             // Add rotation based on horizontal movement and speed multiplier
-            const rotationIncrement = horizontalDelta * rotationSpeeds[index] * 0.5;
+            // Increased multiplier for more visible rotation
+            const rotationIncrement = horizontalDelta * rotationSpeeds[index] * 1.5;
             return currentRotation + rotationIncrement;
         });
 
@@ -100,7 +101,8 @@
 
     function applyRotationTransform(index, rotation) {
         const scales = getScaleValues(index);
-        return `scaleX(${scales.scaleX}) scaleY(${scales.scaleY}) translateX(${scales.translateX}px) rotateY(${rotation}deg)`;
+        // Add rotateZ for visible spinning effect combined with rotateY for depth
+        return `scaleX(${scales.scaleX}) scaleY(${scales.scaleY}) translateX(${scales.translateX}px) rotateY(${rotation}deg) rotateZ(${rotation * 0.3}deg)`;
     }
 
     function getScaleValues(index) {

@@ -116,6 +116,7 @@
     position: relative;
     cursor: pointer;
     overflow: hidden;
+    perspective: 1500px;
 }
 
 .carousel-wrapper {
@@ -125,7 +126,8 @@
     gap: 0;
     position: relative;
     height: 100%;
-    perspective: 1200px;
+    perspective: 1500px;
+    transform-style: preserve-3d;
 }
 
 .text-line {
