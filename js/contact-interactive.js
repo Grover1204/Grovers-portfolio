@@ -76,14 +76,14 @@
         const normalizedX = distX / (containerRect.width / 2);
         const normalizedY = distY / (containerRect.height / 2);
 
-        // Apply displacement to each character
+        // Apply displacement to each character - VERTICAL LAYOUT
         charData.forEach((data, index) => {
-            // Calculate individual character offset based on position in text
+            // Calculate individual character offset based on position in text (vertical)
             const charPosition = (index / chars.length) - 0.5;
             
-            // Displacement based on cursor position and character position
-            const displaceX = normalizedX * 80 + charPosition * 40 + data.randomOffsetX * Math.abs(normalizedX);
-            const displaceY = normalizedY * 80 + charPosition * 30 + data.randomOffsetY * Math.abs(normalizedY);
+            // Vertical displacement - characters spread left/right and up/down
+            const displaceX = normalizedX * 100 + charPosition * 60 + data.randomOffsetX * Math.abs(normalizedX);
+            const displaceY = normalizedY * 50 + charPosition * 20 + data.randomOffsetY * Math.abs(normalizedY);
             
             // Rotation effect
             const rotation = normalizedX * 20 + data.randomRotation;

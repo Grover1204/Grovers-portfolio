@@ -122,24 +122,34 @@
     font-size: 12vw;
     font-weight: 900;
     letter-spacing: 0.05em;
-    white-space: nowrap;
     text-transform: uppercase;
     color: #ffffff;
     user-select: none;
     position: relative;
     filter: drop-shadow(0 0 30px rgba(233, 69, 96, 0.8));
     text-shadow: 0 0 20px rgba(233, 69, 96, 0.6), 0 0 40px rgba(233, 69, 96, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
 }
 
 .text-word {
     position: relative;
-    display: inline-block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
 }
 
 .char {
     position: relative;
     will-change: transform, opacity;
     color: inherit;
+    display: block;
+    line-height: 0.9;
 }
 
 /* Distortion effect on hover */
