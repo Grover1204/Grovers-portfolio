@@ -190,7 +190,7 @@
 .text-line-6,
 .text-line-7 {
     width: 130px;
-    height: 130px;
+    height: 200px;
     display: flex;
     align-items: center;
     justify-content: center;

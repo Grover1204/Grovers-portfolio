@@ -20,10 +20,13 @@
     });
 
     let lastMouseX = 0;
+    let lastMouseY = 0;
     let currentMouseX = 0;
+    let currentMouseY = 0;
     let containerRect = carouselWrapper.getBoundingClientRect();
     let contactRect = contactSection.getBoundingClientRect();
-    let rotationState = [0, 0, 0, 0, 0, 0, 0]; // Track total rotation for each line (in degrees)
+    let rotationStateX = [0, 0, 0, 0, 0, 0, 0]; // Track rotateX for each line (vertical movement)
+    let rotationStateY = [0, 0, 0, 0, 0, 0, 0]; // Track rotateY for each line (horizontal movement)
     let rotationClockwise = [0, 0, 0, 0, 0, 0, 0]; // Track clockwise rotation per line
     let rotationCounterClockwise = [0, 0, 0, 0, 0, 0, 0]; // Track counter-clockwise rotation per line
 
@@ -45,12 +48,14 @@
         contactRect = contactSection.getBoundingClientRect();
     });
 
-    // Track mouse movement - ONLY HORIZONTAL. Use requestAnimationFrame batching
-    let pendingDelta = 0;
+    // Track mouse movement - BOTH HORIZONTAL AND VERTICAL. Use requestAnimationFrame batching
+    let pendingDeltaX = 0;
+    let pendingDeltaY = 0;
     let ticking = false;
 
     document.addEventListener('mousemove', (e) => {
         currentMouseX = e.clientX;
+        currentMouseY = e.clientY;
 
         // refresh contact rect each move to avoid stale values after scroll/layout changes
         contactRect = contactSection.getBoundingClientRect();
@@ -58,47 +63,56 @@
         // Check if cursor is in contact section
         if (isMouseInContactSection(e.clientX, e.clientY)) {
             const horizontalDelta = currentMouseX - lastMouseX;
-            // accumulate delta for next animation frame
-            pendingDelta += horizontalDelta;
+            const verticalDelta = currentMouseY - lastMouseY;
+            // accumulate deltas for next animation frame
+            pendingDeltaX += horizontalDelta;
+            pendingDeltaY += verticalDelta;
 
             if (!ticking) {
                 ticking = true;
                 requestAnimationFrame(() => {
-                    // Only respond to horizontal movement; ignore tiny jitter
-                    if (Math.abs(pendingDelta) > 0.5) {
-                        updateCylindricalRotation(pendingDelta);
+                    // Respond to movement in any direction; ignore tiny jitter
+                    if (Math.abs(pendingDeltaX) > 0.5 || Math.abs(pendingDeltaY) > 0.5) {
+                        updateCylindricalRotation(pendingDeltaX, pendingDeltaY);
                     }
-                    pendingDelta = 0;
+                    pendingDeltaX = 0;
+                    pendingDeltaY = 0;
                     ticking = false;
                 });
             }
         }
 
         lastMouseX = currentMouseX;
+        lastMouseY = currentMouseY;
     });
 
     // Handle touch for mobile - similar batching
     document.addEventListener('touchmove', (e) => {
         const touch = e.touches[0];
         currentMouseX = touch.clientX;
+        currentMouseY = touch.clientY;
         contactRect = contactSection.getBoundingClientRect();
 
-        if (isMouseInContactSection(currentMouseX, touch.clientY)) {
+        if (isMouseInContactSection(currentMouseX, currentMouseY)) {
             const horizontalDelta = currentMouseX - lastMouseX;
-            pendingDelta += horizontalDelta;
+            const verticalDelta = currentMouseY - lastMouseY;
+            pendingDeltaX += horizontalDelta;
+            pendingDeltaY += verticalDelta;
             if (!ticking) {
                 ticking = true;
                 requestAnimationFrame(() => {
-                    if (Math.abs(pendingDelta) > 0.5) {
-                        updateCylindricalRotation(pendingDelta);
+                    if (Math.abs(pendingDeltaX) > 0.5 || Math.abs(pendingDeltaY) > 0.5) {
+                        updateCylindricalRotation(pendingDeltaX, pendingDeltaY);
                     }
-                    pendingDelta = 0;
+                    pendingDeltaX = 0;
+                    pendingDeltaY = 0;
                     ticking = false;
                 });
             }
         }
 
         lastMouseX = currentMouseX;
+        lastMouseY = currentMouseY;
     }, { passive: true });
 
     function isMouseInContactSection(x, y) {
@@ -113,11 +127,12 @@
         );
     }
 
-    function updateCylindricalRotation(horizontalDelta) {
-        // Update rotation state for each line based on horizontal movement
-        // Each line rotates around its Y-axis (left-right rotation creates flip effect)
+    function updateCylindricalRotation(horizontalDelta, verticalDelta) {
+        // Update rotation state for each line based on horizontal AND vertical movement
+        // rotateY for horizontal movement (left-right)
+        // rotateX for vertical movement (up-down)
         // Allow 360° in each direction independently
-        rotationState = rotationState.map((currentRotation, index) => {
+        rotationStateY = rotationStateY.map((currentRotation, index) => {
             // Add rotation based on horizontal movement and speed multiplier
             const rotationIncrement = horizontalDelta * rotationSpeeds[index] * 2.5;
             let newRotation = currentRotation + rotationIncrement;
@@ -144,18 +159,24 @@
             return newRotation;
         });
 
+        // Update rotateX based on vertical movement (simpler, no 360 limit on vertical)
+        rotationStateX = rotationStateX.map((currentRotation, index) => {
+            const rotationIncrement = verticalDelta * rotationSpeeds[index] * 1.5;
+            return currentRotation + rotationIncrement;
+        });
+
         // Apply rotations to each text line
         textLines.forEach((line, index) => {
             const lineInner = line.querySelector('.text-line-inner');
             if (lineInner) {
-                // Calculate rotation progress (0 to 1) for curved effect intensity
-                const totalAbsRotation = Math.abs(rotationState[index]);
-                const rotationProgress = Math.min(totalAbsRotation / 360, 1);
+                // Calculate rotation progress for curved effect intensity
+                const totalAbsRotationY = Math.abs(rotationStateY[index]);
+                const rotationProgress = Math.min(totalAbsRotationY / 360, 1);
                 // Increase backward curve as rotation progresses
                 const curveAmount = 15 + (rotationProgress * 25); // 15-40deg curve
                 
-                // Apply Y-axis rotation for flip + curved backward stretch
-                lineInner.style.transform = `rotateY(${rotationState[index]}deg) rotateX(${curveAmount}deg) scaleZ(${1 - rotationProgress * 0.2})`;
+                // Apply 3D rotation: rotateX for vertical + rotateY for horizontal + curved stretch
+                lineInner.style.transform = `rotateX(${rotationStateX[index]}deg) rotateY(${rotationStateY[index]}deg) rotateX(${curveAmount}deg) scaleZ(${1 - rotationProgress * 0.2})`;
             }
         });
     }
@@ -181,36 +202,42 @@
             resetRotation();
         });
 
-        // Keep lastMouseX in sync when entering
+        // Keep lastMouse values in sync when entering
         contactSection.addEventListener('mouseenter', (e) => {
             lastMouseX = e.clientX || lastMouseX;
+            lastMouseY = e.clientY || lastMouseY;
         });
     }
 
     function resetRotation() {
         // Smoothly decelerate rotation
-        rotationState = rotationState.map(rotation => rotation * 0.93);
+        rotationStateX = rotationStateX.map(rotation => rotation * 0.93);
+        rotationStateY = rotationStateY.map(rotation => rotation * 0.93);
         
-        if (Math.max(...rotationState.map(Math.abs)) > 0.5) {
+        const maxRotationX = Math.max(...rotationStateX.map(Math.abs));
+        const maxRotationY = Math.max(...rotationStateY.map(Math.abs));
+        
+        if (maxRotationX > 0.5 || maxRotationY > 0.5) {
             textLines.forEach((line, index) => {
                 const lineInner = line.querySelector('.text-line-inner');
                 if (lineInner) {
-                    const totalAbsRotation = Math.abs(rotationState[index]);
-                    const rotationProgress = Math.min(totalAbsRotation / 360, 1);
+                    const totalAbsRotationY = Math.abs(rotationStateY[index]);
+                    const rotationProgress = Math.min(totalAbsRotationY / 360, 1);
                     const curveAmount = 15 + (rotationProgress * 25);
-                    lineInner.style.transform = `rotateY(${rotationState[index]}deg) rotateX(${curveAmount}deg) scaleZ(${1 - rotationProgress * 0.2})`;
+                    lineInner.style.transform = `rotateX(${rotationStateX[index]}deg) rotateY(${rotationStateY[index]}deg) rotateX(${curveAmount}deg) scaleZ(${1 - rotationProgress * 0.2})`;
                 }
             });
             requestAnimationFrame(resetRotation);
         } else {
             // Complete reset
-            rotationState = [0, 0, 0, 0, 0, 0, 0];
+            rotationStateX = [0, 0, 0, 0, 0, 0, 0];
+            rotationStateY = [0, 0, 0, 0, 0, 0, 0];
             rotationClockwise = [0, 0, 0, 0, 0, 0, 0];
             rotationCounterClockwise = [0, 0, 0, 0, 0, 0, 0];
             textLines.forEach((line, index) => {
                 const lineInner = line.querySelector('.text-line-inner');
                 if (lineInner) {
-                    lineInner.style.transform = 'rotateY(0deg) rotateX(15deg) scaleZ(1)';
+                    lineInner.style.transform = 'rotateX(0deg) rotateY(0deg) rotateX(15deg) scaleZ(1)';
                 }
             });
         }
