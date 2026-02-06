@@ -103,8 +103,8 @@
 
     // Animation loop
     function animate() {
-        // Clear canvas with fade (trails disappear after ~5 seconds)
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.003)';
+        // Clear canvas with slight fade
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // Update and draw particles
