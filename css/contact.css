@@ -128,16 +128,19 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    transform-style: preserve-3d;
     user-select: none;
     position: relative;
     filter: drop-shadow(0 0 30px rgba(233, 69, 96, 0.6));
-    text-shadow: 0 0 40px rgba(233, 69, 96, 0.4);
 }
 
 .text-word {
-    display: inline-block;
     position: relative;
+    display: inline-block;
+}
+
+.char {
+    position: relative;
+    will-change: transform, opacity;
 }
 
 /* Distortion effect on hover */

@@ -1,4 +1,4 @@
-// Interactive Contact Page - Cursor Tracking Effect
+// Interactive Contact Page - Accenture-Style Cursor Tracking Effect
 (function() {
     'use strict';
 
@@ -6,11 +6,28 @@
     const interactiveText = document.getElementById('interactiveText');
     const textWord = document.querySelector('.text-word');
 
-    if (!interactiveContainer || !interactiveText) return;
+    if (!interactiveContainer || !interactiveText || !textWord) return;
 
+    // Convert text to individual character spans for distortion effect
+    const text = textWord.textContent;
+    textWord.innerHTML = text.split('').map((char, index) => 
+        `<span class="char" style="display: inline-block;" data-index="${index}">${char}</span>`
+    ).join('');
+
+    const chars = textWord.querySelectorAll('.char');
     let mouseX = 0;
     let mouseY = 0;
     let containerRect = interactiveContainer.getBoundingClientRect();
+
+    // Store original positions
+    const charData = Array.from(chars).map(char => ({
+        element: char,
+        originalX: 0,
+        originalY: 0,
+        randomOffsetX: (Math.random() - 0.5) * 30,
+        randomOffsetY: (Math.random() - 0.5) * 30,
+        randomRotation: (Math.random() - 0.5) * 15
+    }));
 
     // Update container dimensions on resize
     window.addEventListener('resize', () => {
@@ -22,7 +39,6 @@
         mouseX = e.clientX;
         mouseY = e.clientY;
 
-        // Check if cursor is over the interactive container
         if (isMouseInContainer(mouseX, mouseY)) {
             updateTextEffect(mouseX, mouseY);
         }
@@ -60,64 +76,45 @@
         const normalizedX = distX / (containerRect.width / 2);
         const normalizedY = distY / (containerRect.height / 2);
 
-        // Calculate angles for 3D rotation with stronger effect
-        const rotateY = normalizedX * 25;
-        const rotateX = -normalizedY * 25;
+        // Apply displacement to each character
+        charData.forEach((data, index) => {
+            // Calculate individual character offset based on position in text
+            const charPosition = (index / chars.length) - 0.5;
+            
+            // Displacement based on cursor position and character position
+            const displaceX = normalizedX * 80 + charPosition * 40 + data.randomOffsetX * Math.abs(normalizedX);
+            const displaceY = normalizedY * 80 + charPosition * 30 + data.randomOffsetY * Math.abs(normalizedY);
+            
+            // Rotation effect
+            const rotation = normalizedX * 20 + data.randomRotation;
+            
+            // Opacity/scale effect based on distance
+            const scale = 1 + Math.abs(normalizedX) * 0.05;
+            const opacity = 0.7 + Math.abs(normalizedX) * 0.3;
 
-        // Calculate skew for more dramatic distortion
-        const skewX = normalizedX * 8;
-        const skewY = normalizedY * 8;
-
-        // Scale based on distance
-        const scale = 1 + Math.abs(normalizedX) * 0.1;
-
-        // Apply 3D transform with smooth animation
-        interactiveText.style.transform = `
-            perspective(1000px)
-            rotateX(${rotateX}deg)
-            rotateY(${rotateY}deg)
-            skewX(${skewX}deg)
-            skewY(${skewY}deg)
-            scale(${scale})
-        `;
-
-        // Update letter spacing based on horizontal position
-        const letterSpacing = 0.05 + Math.abs(normalizedX) * 0.12;
-        interactiveText.style.letterSpacing = `${letterSpacing}em`;
-
-        // Update gradient based on cursor position
-        const hueRotation = (normalizedX + 1) * 60;
-        interactiveText.style.filter = `
-            hue-rotate(${hueRotation}deg)
-            drop-shadow(0 0 40px rgba(233, 69, 96, 0.8))
-        `;
+            // Apply transform to individual character
+            data.element.style.transform = `
+                translateX(${displaceX}px)
+                translateY(${displaceY}px)
+                rotate(${rotation}deg)
+                scale(${scale})
+            `;
+            
+            data.element.style.opacity = opacity;
+        });
     }
 
     // Reset effect when mouse leaves container
     interactiveContainer.addEventListener('mouseleave', () => {
-        interactiveText.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) skewX(0deg) skewY(0deg) scale(1)';
-        interactiveText.style.letterSpacing = '0.05em';
-        interactiveText.style.filter = 'drop-shadow(0 0 30px rgba(233, 69, 96, 0.6))';
+        charData.forEach(data => {
+            data.element.style.transform = 'translateX(0) translateY(0) rotate(0deg) scale(1)';
+            data.element.style.opacity = '1';
+        });
     });
 
     // Add smooth transition
-    interactiveText.style.transition = 'transform 0.08s ease-out, letter-spacing 0.08s ease-out, filter 0.08s ease-out';
-
-    // Optional: Create occasional text distortion for dynamic effect
-    function createDistortionEffect() {
-        if (!textWord || Math.random() < 0.95) return;
-
-        const originalText = textWord.textContent;
-        const distortionChars = ['𝐆𝐫𝐨𝐯𝐞𝐫', '𝑮𝒓𝒐𝒗𝒆𝒓', '𝑮𝑹𝑶𝑽𝑬𝑹', 'GROVER'];
-
-        textWord.textContent = distortionChars[Math.floor(Math.random() * distortionChars.length)];
-
-        setTimeout(() => {
-            textWord.textContent = originalText;
-        }, 150);
-    }
-
-    // Create distortion effect occasionally for visual interest
-    setInterval(createDistortionEffect, 3000);
+    chars.forEach(char => {
+        char.style.transition = 'transform 0.06s ease-out, opacity 0.06s ease-out';
+    });
 
 })();
