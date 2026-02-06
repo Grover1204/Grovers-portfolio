@@ -90,7 +90,7 @@
         // Each line rotates around its Y-axis (left-right rotation creates flip effect)
         rotationState = rotationState.map((currentRotation, index) => {
             // Add rotation based on horizontal movement and speed multiplier
-            const rotationIncrement = horizontalDelta * rotationSpeeds[index] * 2.0;
+            const rotationIncrement = horizontalDelta * rotationSpeeds[index] * 2.5;
             return currentRotation + rotationIncrement;
         });
 
@@ -101,11 +101,6 @@
                 // Apply Y-axis rotation to create flip effect (showing front text or back empty side)
                 lineInner.style.transform = `rotateY(${rotationState[index]}deg)`;
             }
-            
-            // Update scale based on line position
-            const scales = getScaleValues(index);
-            line.style.transform = `scaleX(${scales.scaleX}) scaleY(${scales.scaleY}) translateX(${scales.translateX}px)`;
-            line.style.opacity = scales.opacity.toString();
         });
     }
 
@@ -149,10 +144,6 @@
                 if (lineInner) {
                     lineInner.style.transform = 'rotateY(0deg)';
                 }
-                
-                const scales = getScaleValues(index);
-                line.style.transform = `scaleX(${scales.scaleX}) scaleY(${scales.scaleY}) translateX(${scales.translateX}px)`;
-                line.style.opacity = scales.opacity.toString();
             });
         }
     }
