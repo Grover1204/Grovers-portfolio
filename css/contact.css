@@ -113,26 +113,63 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    perspective: 1200px;
     position: relative;
     cursor: pointer;
+    overflow: hidden;
 }
 
-.interactive-text {
-    font-size: 12vw;
-    font-weight: 900;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: #ffffff;
-    user-select: none;
-    position: relative;
-    filter: drop-shadow(0 0 30px rgba(233, 69, 96, 0.8));
-    text-shadow: 0 0 20px rgba(233, 69, 96, 0.6), 0 0 40px rgba(233, 69, 96, 0.3);
+.carousel-wrapper {
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0;
+    position: relative;
+    height: 100%;
+}
+
+.text-line {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    transition: all 0.1s ease-out;
+}
+
+.text-line-1 {
+    transform: scaleX(0.3) scaleY(0.4) translateX(-280px);
+    opacity: 0.2;
+}
+
+.text-line-2 {
+    transform: scaleX(0.5) scaleY(0.65) translateX(-180px);
+    opacity: 0.4;
+}
+
+.text-line-3 {
+    transform: scaleX(0.75) scaleY(0.85) translateX(-90px);
+    opacity: 0.65;
+}
+
+.text-line-4 {
+    transform: scaleX(1) scaleY(1) translateX(0);
+    opacity: 1;
+    z-index: 10;
+}
+
+.text-line-5 {
+    transform: scaleX(0.75) scaleY(0.85) translateX(90px);
+    opacity: 0.65;
+}
+
+.text-line-6 {
+    transform: scaleX(0.5) scaleY(0.65) translateX(180px);
+    opacity: 0.4;
+}
+
+.text-line-7 {
+    transform: scaleX(0.3) scaleY(0.4) translateX(280px);
+    opacity: 0.2;
 }
 
 .text-word {
@@ -146,10 +183,15 @@
 
 .char {
     position: relative;
-    will-change: transform, opacity;
-    color: inherit;
+    color: #ffffff;
+    user-select: none;
     display: block;
     line-height: 0.9;
+    font-size: 6vw;
+    font-weight: 600;
+    filter: drop-shadow(0 0 20px rgba(233, 69, 96, 0.5));
+    text-shadow: 0 0 15px rgba(233, 69, 96, 0.4);
+    will-change: transform, opacity;
 }
 
 /* Distortion effect on hover */
