@@ -4,6 +4,7 @@
 
     const interactiveContainer = document.querySelector('.interactive-text-container');
     const interactiveText = document.getElementById('interactiveText');
+    const textWord = document.querySelector('.text-word');
 
     if (!interactiveContainer || !interactiveText) return;
 
@@ -55,63 +56,68 @@
         const distX = x - centerX;
         const distY = y - centerY;
 
-        // Calculate angles for 3D rotation
-        const rotateY = (distX / containerRect.width) * 20;
-        const rotateX = -(distY / containerRect.height) * 20;
+        // Normalize distances (-1 to 1)
+        const normalizedX = distX / (containerRect.width / 2);
+        const normalizedY = distY / (containerRect.height / 2);
 
-        // Calculate skew for distortion effect
-        const skewX = (distX / containerRect.width) * 5;
-        const skewY = (distY / containerRect.height) * 5;
+        // Calculate angles for 3D rotation with stronger effect
+        const rotateY = normalizedX * 25;
+        const rotateX = -normalizedY * 25;
 
-        // Apply 3D transform
+        // Calculate skew for more dramatic distortion
+        const skewX = normalizedX * 8;
+        const skewY = normalizedY * 8;
+
+        // Scale based on distance
+        const scale = 1 + Math.abs(normalizedX) * 0.1;
+
+        // Apply 3D transform with smooth animation
         interactiveText.style.transform = `
+            perspective(1000px)
             rotateX(${rotateX}deg)
             rotateY(${rotateY}deg)
             skewX(${skewX}deg)
             skewY(${skewY}deg)
-            scale(${1 + Math.abs(distX) / containerRect.width * 0.05})
+            scale(${scale})
         `;
 
         // Update letter spacing based on horizontal position
-        const letterSpacing = 0.05 + (Math.abs(distX) / containerRect.width) * 0.08;
+        const letterSpacing = 0.05 + Math.abs(normalizedX) * 0.12;
         interactiveText.style.letterSpacing = `${letterSpacing}em`;
+
+        // Update gradient based on cursor position
+        const hueRotation = (normalizedX + 1) * 60;
+        interactiveText.style.filter = `
+            hue-rotate(${hueRotation}deg)
+            drop-shadow(0 0 40px rgba(233, 69, 96, 0.8))
+        `;
     }
 
     // Reset effect when mouse leaves container
     interactiveContainer.addEventListener('mouseleave', () => {
-        interactiveText.style.transform = 'rotateX(0deg) rotateY(0deg) skewX(0deg) skewY(0deg) scale(1)';
+        interactiveText.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) skewX(0deg) skewY(0deg) scale(1)';
         interactiveText.style.letterSpacing = '0.05em';
+        interactiveText.style.filter = 'drop-shadow(0 0 30px rgba(233, 69, 96, 0.6))';
     });
 
     // Add smooth transition
-    interactiveText.style.transition = 'transform 0.1s ease-out, letter-spacing 0.1s ease-out';
+    interactiveText.style.transition = 'transform 0.08s ease-out, letter-spacing 0.08s ease-out, filter 0.08s ease-out';
 
-    // Create glitch effect occasionally
-    function createGlitchEffect() {
-        const textWord = interactiveText.querySelector('.text-word');
-        if (!textWord) return;
+    // Optional: Create occasional text distortion for dynamic effect
+    function createDistortionEffect() {
+        if (!textWord || Math.random() < 0.95) return;
 
         const originalText = textWord.textContent;
-        const glitchChars = '゛ㄣ︴ᴛ︿ᴺ︶';
+        const distortionChars = ['𝐆𝐫𝐨𝐯𝐞𝐫', '𝑮𝒓𝒐𝒗𝒆𝒓', '𝑮𝑹𝑶𝑽𝑬𝑹', 'GROVER'];
 
-        // Randomly apply glitch
-        if (Math.random() < 0.1) {
-            const randomIndex = Math.floor(Math.random() * originalText.length);
-            const glitchChar = glitchChars[Math.floor(Math.random() * glitchChars.length)];
-            
-            const chars = originalText.split('');
-            chars[randomIndex] = glitchChar;
-            
-            textWord.textContent = chars.join('');
-            
-            // Restore after short delay
-            setTimeout(() => {
-                textWord.textContent = originalText;
-            }, 50);
-        }
+        textWord.textContent = distortionChars[Math.floor(Math.random() * distortionChars.length)];
+
+        setTimeout(() => {
+            textWord.textContent = originalText;
+        }, 150);
     }
 
-    // Optional: Create glitch effect periodically
-    setInterval(createGlitchEffect, 2000);
+    // Create distortion effect occasionally for visual interest
+    setInterval(createDistortionEffect, 3000);
 
 })();
