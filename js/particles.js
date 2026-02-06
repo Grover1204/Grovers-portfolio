@@ -120,8 +120,8 @@
                 const dy = particles[i].y - particles[j].y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
 
-                if (distance < 50) {
-                    ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 * (1 - distance / 50)})`;
+                if (distance < 120) {
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 * (1 - distance / 120)})`;
                     ctx.lineWidth = 0.5;
                     ctx.beginPath();
                     ctx.moveTo(particles[i].x, particles[i].y);
