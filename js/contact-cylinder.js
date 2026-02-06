@@ -24,6 +24,7 @@
     let containerRect = carouselWrapper.getBoundingClientRect();
     let contactRect = contactSection.getBoundingClientRect();
     let rotationState = [0, 0, 0, 0, 0, 0, 0]; // Track rotation for each line (in degrees)
+    let hasCompleted360 = [false, false, false, false, false, false, false]; // Track if line has completed 360° rotation
 
     // Rotation speed multipliers for each line (relative to movement)
     // Each line rotates at different speed based on position
@@ -114,18 +115,38 @@
     function updateCylindricalRotation(horizontalDelta) {
         // Update rotation state for each line based on horizontal movement
         // Each line rotates around its Y-axis (left-right rotation creates flip effect)
+        // STOP at 360° (or -360° for counter-clockwise)
         rotationState = rotationState.map((currentRotation, index) => {
+            // Only allow rotation if haven't completed 360° yet
+            if (hasCompleted360[index]) {
+                return currentRotation;
+            }
+
             // Add rotation based on horizontal movement and speed multiplier
             const rotationIncrement = horizontalDelta * rotationSpeeds[index] * 2.5;
-            return currentRotation + rotationIncrement;
+            const newRotation = currentRotation + rotationIncrement;
+
+            // Check if we've completed 360° rotation in either direction
+            const absMod = Math.abs(newRotation % 360);
+            if (absMod >= 360 || (absMod <= 5 && Math.abs(newRotation) >= 360)) {
+                hasCompleted360[index] = true;
+                return Math.sign(newRotation) * 360; // Lock at 360 or -360
+            }
+
+            return newRotation;
         });
 
         // Apply rotations to each text line
         textLines.forEach((line, index) => {
             const lineInner = line.querySelector('.text-line-inner');
             if (lineInner) {
-                // Apply Y-axis rotation to create flip effect (showing front text or back empty side)
-                lineInner.style.transform = `rotateY(${rotationState[index]}deg)`;
+                // Calculate rotation progress (0 to 1) for curved effect intensity
+                const rotationProgress = Math.abs(rotationState[index]) / 360;
+                // Increase backward curve as rotation progresses
+                const curveAmount = 15 + (rotationProgress * 25); // 15-40deg curve
+                
+                // Apply Y-axis rotation for flip + curved backward stretch
+                lineInner.style.transform = `rotateY(${rotationState[index]}deg) rotateX(${curveAmount}deg) scaleZ(${1 - rotationProgress * 0.2})`;
             }
         });
     }
@@ -158,10 +179,17 @@
     }
 
     function resetRotation() {
-        // Smoothly decelerate rotation
-        rotationState = rotationState.map(rotation => rotation * 0.93);
+        // Smoothly decelerate rotation (only if not at 360°)
+        rotationState = rotationState.map((rotation, index) => {
+            if (hasCompleted360[index]) {
+                return rotation; // Keep at 360/-360
+            }
+            return rotation * 0.93;
+        });
         
-        if (Math.max(...rotationState.map(Math.abs)) > 0.5) {
+        const hasActiveRotation = rotationState.some((rot, index) => !hasCompleted360[index] && Math.abs(rot) > 0.5);
+        
+        if (hasActiveRotation) {
             textLines.forEach((line, index) => {
                 const lineInner = line.querySelector('.text-line-inner');
                 if (lineInner) {
@@ -170,12 +198,12 @@
             });
             requestAnimationFrame(resetRotation);
         } else {
-            // Complete reset
-            rotationState = [0, 0, 0, 0, 0, 0, 0];
+            // Reset only non-completed lines; keep completed lines at 360°
+            rotationState = rotationState.map((rot, index) => hasCompleted360[index] ? rot : 0);
             textLines.forEach((line, index) => {
                 const lineInner = line.querySelector('.text-line-inner');
                 if (lineInner) {
-                    lineInner.style.transform = 'rotateY(0deg)';
+                    lineInner.style.transform = `rotateY(${rotationState[index]}deg)`;
                 }
             });
         }
