@@ -146,9 +146,16 @@
     }
 
     // Reset effect when mouse leaves contact section
-    document.addEventListener('mouseleave', () => {
-        resetRotation();
-    });
+    if (contactSection) {
+        contactSection.addEventListener('mouseleave', () => {
+            resetRotation();
+        });
+
+        // Keep lastMouseX in sync when entering
+        contactSection.addEventListener('mouseenter', (e) => {
+            lastMouseX = e.clientX || lastMouseX;
+        });
+    }
 
     function resetRotation() {
         // Smoothly decelerate rotation
