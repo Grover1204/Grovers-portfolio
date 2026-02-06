@@ -52,11 +52,11 @@ body {
     left: 0;
     right: 0;
     z-index: 1000;
-    background: rgba(0, 0, 0, 0.95);
+    background: rgba(0, 0, 0, 0.99);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border-color);
     transition: var(--transition);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.9);
 }
 
 .nav-content {
