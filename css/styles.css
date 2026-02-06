@@ -267,7 +267,7 @@ body {
 }
 
 .floating-card {
-    background: rgba(26, 26, 46, 0.8);
+    background: rgba(10, 10, 10, 0.9);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 2rem;
@@ -385,7 +385,7 @@ body {
 }
 
 .skill-category {
-    background: rgba(26, 26, 46, 0.6);
+    background: rgba(10, 10, 10, 0.8);
     border: 1px solid var(--border-color);
     padding: 2rem;
     border-radius: 12px;
@@ -393,7 +393,7 @@ body {
 }
 
 .skill-category:hover {
-    background: rgba(26, 26, 46, 0.9);
+    background: rgba(10, 10, 10, 0.95);
     border-color: var(--highlight-color);
     transform: translateY(-5px);
 }
@@ -441,7 +441,7 @@ body {
 }
 
 .project-card {
-    background: rgba(26, 26, 46, 0.6);
+    background: rgba(10, 10, 10, 0.8);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     overflow: hidden;
