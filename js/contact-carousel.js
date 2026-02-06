@@ -1,9 +1,10 @@
-// Accenture-Style Carousel Effect with Vertical Grover Text
+// Accenture-Style Carousel Effect with Circular Rotation Based on Horizontal Cursor Movement
 (function() {
     'use strict';
 
     const carouselWrapper = document.getElementById('carouselWrapper');
     const textLines = document.querySelectorAll('.text-line');
+    const contactSection = document.querySelector('.contact');
 
     if (!carouselWrapper || textLines.length === 0) return;
 
@@ -18,67 +19,88 @@
         }
     });
 
-    let mouseX = 0;
+    let lastMouseX = 0;
+    let currentMouseX = 0;
     let containerRect = carouselWrapper.getBoundingClientRect();
+    let contactRect = contactSection.getBoundingClientRect();
+    let rotationState = [0, 0, 0, 0, 0, 0, 0]; // Track rotation for each line
+
+    // Rotation speed multipliers for each line (relative to movement)
+    const rotationSpeeds = [
+        3.0,  // Line 1 - fastest
+        2.0,  // Line 2
+        1.2,  // Line 3
+        0.5,  // Line 4 - center, slowest
+        1.2,  // Line 5
+        2.0,  // Line 6
+        3.0   // Line 7 - fastest
+    ];
 
     // Update container dimensions on resize
     window.addEventListener('resize', () => {
         containerRect = carouselWrapper.getBoundingClientRect();
+        contactRect = contactSection.getBoundingClientRect();
     });
 
-    // Track mouse movement
+    // Track mouse movement - ONLY HORIZONTAL
     document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
+        currentMouseX = e.clientX;
 
-        if (isMouseInContainer(mouseX, e.clientY)) {
-            updateCarouselEffect(mouseX);
+        // Check if cursor is in contact section
+        if (isMouseInContactSection(e.clientX, e.clientY)) {
+            const horizontalDelta = currentMouseX - lastMouseX;
+            
+            // Only update if horizontal movement is significant
+            if (Math.abs(horizontalDelta) > 0) {
+                updateCircularRotation(horizontalDelta);
+            }
         }
+
+        lastMouseX = currentMouseX;
     });
 
     // Handle touch for mobile
     document.addEventListener('touchmove', (e) => {
         const touch = e.touches[0];
-        mouseX = touch.clientX;
+        currentMouseX = touch.clientX;
 
-        if (isMouseInContainer(mouseX, touch.clientY)) {
-            updateCarouselEffect(mouseX);
+        if (isMouseInContactSection(currentMouseX, touch.clientY)) {
+            const horizontalDelta = currentMouseX - lastMouseX;
+            
+            if (Math.abs(horizontalDelta) > 0) {
+                updateCircularRotation(horizontalDelta);
+            }
         }
-    });
 
-    function isMouseInContainer(x, y) {
+        lastMouseX = currentMouseX;
+    }, { passive: true }); // passive: true ensures scrolling isn't blocked
+
+    function isMouseInContactSection(x, y) {
         return (
-            x >= containerRect.left &&
-            x <= containerRect.right &&
-            y >= containerRect.top &&
-            y <= containerRect.bottom
+            x >= contactRect.left &&
+            x <= contactRect.right &&
+            y >= contactRect.top &&
+            y <= contactRect.bottom
         );
     }
 
-    function updateCarouselEffect(x) {
-        const centerX = containerRect.left + containerRect.width / 2;
-        const distX = x - centerX;
-        const normalizedX = distX / (containerRect.width / 2);
-
-        // Update each text line with carousel offset
-        textLines.forEach((line, lineIndex) => {
-            // Calculate offset based on cursor position
-            // Left movement: slide lines to the right
-            // Right movement: slide lines to the left
-            const offset = normalizedX * 150; // Maximum pixel displacement
-
-            // Apply transform to each line
-            const currentTransform = line.style.transform;
-            
-            // Extract current scale and opacity values
-            const scales = getScaleValues(lineIndex);
-            const translateX = scales.translateX + offset;
-
-            line.style.transform = `scaleX(${scales.scaleX}) scaleY(${scales.scaleY}) translateX(${translateX}px)`;
-
-            // Optional: Vary opacity with movement
-            const opacityBoost = Math.abs(normalizedX) * 0.1;
-            line.style.opacity = (scales.opacity + opacityBoost).toString();
+    function updateCircularRotation(horizontalDelta) {
+        // Update rotation state for each line based on horizontal movement
+        rotationState = rotationState.map((currentRotation, index) => {
+            // Add rotation based on horizontal movement and speed multiplier
+            const rotationIncrement = horizontalDelta * rotationSpeeds[index] * 0.5;
+            return currentRotation + rotationIncrement;
         });
+
+        // Apply rotations to each text line
+        textLines.forEach((line, index) => {
+            line.style.transform = applyRotationTransform(index, rotationState[index]);
+        });
+    }
+
+    function applyRotationTransform(index, rotation) {
+        const scales = getScaleValues(index);
+        return `scaleX(${scales.scaleX}) scaleY(${scales.scaleY}) translateX(${scales.translateX}px) rotateY(${rotation}deg)`;
     }
 
     function getScaleValues(index) {
@@ -96,18 +118,33 @@
         return scales[index] || scales[3];
     }
 
-    // Reset effect when mouse leaves container
-    carouselWrapper.addEventListener('mouseleave', () => {
-        textLines.forEach((line, index) => {
-            const scales = getScaleValues(index);
-            line.style.transform = `scaleX(${scales.scaleX}) scaleY(${scales.scaleY}) translateX(${scales.translateX}px)`;
-            line.style.opacity = scales.opacity.toString();
-        });
+    // Reset effect when mouse leaves contact section
+    document.addEventListener('mouseleave', () => {
+        // Gradually reset rotation
+        resetRotation();
     });
+
+    function resetRotation() {
+        rotationState = rotationState.map(rotation => rotation * 0.95); // Smooth deceleration
+        
+        if (Math.max(...rotationState.map(Math.abs)) > 0.5) {
+            textLines.forEach((line, index) => {
+                line.style.transform = applyRotationTransform(index, rotationState[index]);
+            });
+            requestAnimationFrame(resetRotation);
+        } else {
+            // Complete reset
+            rotationState = [0, 0, 0, 0, 0, 0, 0];
+            textLines.forEach((line, index) => {
+                const scales = getScaleValues(index);
+                line.style.transform = `scaleX(${scales.scaleX}) scaleY(${scales.scaleY}) translateX(${scales.translateX}px) rotateY(0deg)`;
+            });
+        }
+    }
 
     // Add smooth transition to all lines
     textLines.forEach(line => {
-        line.style.transition = 'all 0.08s ease-out';
+        line.style.transition = 'opacity 0.3s ease-out';
     });
 
 })();
