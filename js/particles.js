@@ -113,15 +113,15 @@
             particle.draw(ctx);
         });
 
-        // Draw subtle connecting lines between nearby particles
+        // Draw subtle connecting lines between nearby particles (VERY CLOSE only)
         for (let i = 0; i < particles.length; i++) {
             for (let j = i + 1; j < particles.length; j++) {
                 const dx = particles[i].x - particles[j].x;
                 const dy = particles[i].y - particles[j].y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
 
-                if (distance < 100) {
-                    ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 * (1 - distance / 100)})`;
+                if (distance < 50) {
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 * (1 - distance / 50)})`;
                     ctx.lineWidth = 0.5;
                     ctx.beginPath();
                     ctx.moveTo(particles[i].x, particles[i].y);
