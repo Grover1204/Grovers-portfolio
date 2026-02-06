@@ -103,8 +103,9 @@
 
     // Animation loop
     function animate() {
-        // Clear canvas completely (no fade/ghosting)
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Clear canvas with faster fade (visible trails, minimal ghosting)
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // Update and draw particles
         particles.forEach(particle => {
