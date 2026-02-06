@@ -137,17 +137,17 @@
 }
 
 .text-line-1 {
-    transform: scaleX(0.3) scaleY(0.4) translateX(-280px);
+    transform: scaleX(0.3) scaleY(0.4) translateX(-140px);
     opacity: 0.2;
 }
 
 .text-line-2 {
-    transform: scaleX(0.5) scaleY(0.65) translateX(-180px);
+    transform: scaleX(0.5) scaleY(0.65) translateX(-90px);
     opacity: 0.4;
 }
 
 .text-line-3 {
-    transform: scaleX(0.75) scaleY(0.85) translateX(-90px);
+    transform: scaleX(0.75) scaleY(0.85) translateX(-45px);
     opacity: 0.65;
 }
 
@@ -158,17 +158,17 @@
 }
 
 .text-line-5 {
-    transform: scaleX(0.75) scaleY(0.85) translateX(90px);
+    transform: scaleX(0.75) scaleY(0.85) translateX(45px);
     opacity: 0.65;
 }
 
 .text-line-6 {
-    transform: scaleX(0.5) scaleY(0.65) translateX(180px);
+    transform: scaleX(0.5) scaleY(0.65) translateX(90px);
     opacity: 0.4;
 }
 
 .text-line-7 {
-    transform: scaleX(0.3) scaleY(0.4) translateX(280px);
+    transform: scaleX(0.3) scaleY(0.4) translateX(140px);
     opacity: 0.2;
 }
 

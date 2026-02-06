@@ -82,15 +82,15 @@
     }
 
     function getScaleValues(index) {
-        // Define scale values for each line (matching the CSS)
+        // Define scale values for each line (matching the CSS) - CLOSER SPACING
         const scales = [
-            { scaleX: 0.3, scaleY: 0.4, translateX: -280, opacity: 0.2 },
-            { scaleX: 0.5, scaleY: 0.65, translateX: -180, opacity: 0.4 },
-            { scaleX: 0.75, scaleY: 0.85, translateX: -90, opacity: 0.65 },
+            { scaleX: 0.3, scaleY: 0.4, translateX: -140, opacity: 0.2 },
+            { scaleX: 0.5, scaleY: 0.65, translateX: -90, opacity: 0.4 },
+            { scaleX: 0.75, scaleY: 0.85, translateX: -45, opacity: 0.65 },
             { scaleX: 1, scaleY: 1, translateX: 0, opacity: 1 },
-            { scaleX: 0.75, scaleY: 0.85, translateX: 90, opacity: 0.65 },
-            { scaleX: 0.5, scaleY: 0.65, translateX: 180, opacity: 0.4 },
-            { scaleX: 0.3, scaleY: 0.4, translateX: 280, opacity: 0.2 }
+            { scaleX: 0.75, scaleY: 0.85, translateX: 45, opacity: 0.65 },
+            { scaleX: 0.5, scaleY: 0.65, translateX: 90, opacity: 0.4 },
+            { scaleX: 0.3, scaleY: 0.4, translateX: 140, opacity: 0.2 }
         ];
 
         return scales[index] || scales[3];
