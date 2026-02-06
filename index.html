@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/contact.css">
 </head>
 <body>
     <!-- Navigation -->
@@ -141,14 +142,29 @@
 
     <!-- Contact Section -->
     <section class="contact" id="contact">
-        <div class="container">
-            <h2 class="section-title">Let's Connect</h2>
-            <div class="contact-content">
-                <p>I'm always interested in hearing about new projects and opportunities.</p>
-                <div class="contact-links">
-                    <a href="https://github.com/Grover1204" class="contact-link" target="_blank">GitHub</a>
-                    <a href="https://www.linkedin.com/in/rahul-modugu-a707051b1/" class="contact-link" target="_blank">LinkedIn</a>
-                    <a href="mailto:contact@example.com" class="contact-link">Email</a>
+        <div class="contact-wrapper">
+            <div class="contact-left">
+                <div class="contact-text-section">
+                    <h2 class="contact-heading">Let's Work Together</h2>
+                    <p class="contact-description">I'm always interested in hearing about new projects and opportunities. Whether you have a question or just want to say hi, feel free to reach out!</p>
+                    <div class="contact-links">
+                        <a href="https://github.com/Grover1204" class="contact-link" target="_blank">
+                            <span>GitHub</span>
+                        </a>
+                        <a href="https://www.linkedin.com/in/rahul-modugu-a707051b1/" class="contact-link" target="_blank">
+                            <span>LinkedIn</span>
+                        </a>
+                        <a href="mailto:contact@example.com" class="contact-link">
+                            <span>Email</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="contact-right">
+                <div class="interactive-text-container">
+                    <div class="interactive-text" id="interactiveText">
+                        <span class="text-word">Grover</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -163,6 +179,7 @@
 
     <script src="js/main.js"></script>
     <script src="js/projects.js"></script>
+    <script src="js/contact-interactive.js"></script>
     <script src="config.js"></script>
 </body>
 </html>
