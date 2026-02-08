@@ -28,9 +28,25 @@
             this.radius = Math.random() * 1.5 + 0.5;
             this.opacity = Math.random() * 0.5 + 0.3;
             this.baseOpacity = this.opacity;
+            this.burst = false;
+            this.burstFrames = 0;
         }
 
         update(mouseX, mouseY) {
+            // Handle burst
+            if (this.burst) {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.burstFrames = (this.burstFrames || 0) + 1;
+                if (this.burstFrames > 60) { // Even longer burst duration
+                    this.burst = false;
+                    this.burstFrames = 0;
+                    this.vx = (Math.random() - 0.5) * 0.5;
+                    this.vy = (Math.random() - 0.5) * 0.5;
+                }
+                return;
+            }
+
             // Add subtle drift
             this.vx += (Math.random() - 0.5) * 0.01;
             this.vy += (Math.random() - 0.5) * 0.01;
@@ -101,11 +117,48 @@
         mouseActive = false;
     });
 
+    // Burst logic parameters
+    const burstThreshold = 20; // Distance to cursor for "close"
+    const burstDistance = 100; // How far particles burst out
+    let burstTriggered = false;
+    let rotationStartTime = null;
+    const ROTATION_DURATION = 12000; // 12 seconds in ms
+
+    function allParticlesCloseToCursor() {
+        return particles.every(p =>
+            Math.hypot(p.x - mouseX, p.y - mouseY) < burstThreshold
+        );
+    }
+
+    function burstParticles() {
+        console.log('Burst triggered!');
+        particles.forEach(p => {
+            const angle = Math.random() * 2 * Math.PI;
+            p.vx = Math.cos(angle) * burstDistance / 5; // Much faster burst
+            p.vy = Math.sin(angle) * burstDistance / 5;
+            p.burst = true;
+            p.burstFrames = 0;
+        });
+    }
+
     // Animation loop
     function animate() {
-        // Clear canvas with faster fade (visible trails, minimal ghosting)
         ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Burst timer logic
+        if (mouseActive && allParticlesCloseToCursor()) {
+            if (!rotationStartTime) {
+                rotationStartTime = Date.now();
+            }
+            if (!burstTriggered && Date.now() - rotationStartTime >= ROTATION_DURATION) {
+                burstParticles();
+                burstTriggered = true;
+            }
+        } else {
+            rotationStartTime = null;
+            burstTriggered = false;
+        }
 
         // Update and draw particles
         particles.forEach(particle => {
@@ -113,13 +166,12 @@
             particle.draw(ctx);
         });
 
-        // Draw subtle connecting lines between nearby particles (VERY CLOSE only)
+        // Draw connecting lines
         for (let i = 0; i < particles.length; i++) {
             for (let j = i + 1; j < particles.length; j++) {
                 const dx = particles[i].x - particles[j].x;
                 const dy = particles[i].y - particles[j].y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-
                 if (distance < 120) {
                     ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 * (1 - distance / 120)})`;
                     ctx.lineWidth = 0.5;
