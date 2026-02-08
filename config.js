@@ -28,7 +28,7 @@ const portfolioConfig = {
         primary: '#1a1a2e',
         secondary: '#16213e',
         accent: '#0f3460',
-        highlight: '#e94560',      // Main accent color - change this for different theme
+        highlight: '#DC143C',      // Main accent color - change this for different theme
         textPrimary: '#ffffff',
         textSecondary: '#b0b0b0',
         bgDark: '#0f0f1e',

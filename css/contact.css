@@ -54,7 +54,7 @@
     align-items: center;
     justify-content: center;
     padding: 1rem 2.5rem;
-    background: rgba(233, 69, 96, 0.1);
+    background: rgba(220, 20, 60, 0.1);
     border: 2px solid var(--highlight-color);
     color: var(--highlight-color);
     text-decoration: none;
@@ -86,7 +86,7 @@
 .contact-link:hover {
     color: var(--bg-dark);
     transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(233, 69, 96, 0.3);
+    box-shadow: 0 10px 25px rgba(220, 20, 60, 0.3);
 }
 
 .contact-link span {
