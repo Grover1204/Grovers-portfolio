@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facial Emotion Recognition - Live Demo</title>
+    <link rel="icon" href="images/web.png" type="image/png" sizes="32x32 192x192">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-blur: blur(20px);
+        }
+
+        body {
+            background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000000 100%);
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            /* No scrolling */
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Background decoration */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: var(--highlight-color);
+            filter: blur(150px);
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Header */
+        .app-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-sizing: border-box;
+        }
+
+        .nav-btn {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            background: var(--glass-bg);
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: var(--glass-blur);
+        }
+
+        .nav-btn:hover {
+            color: #fff;
+            border-color: var(--highlight-color);
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .page-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Main Container */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            /* Stack items vertically */
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 2rem;
+            gap: 2rem;
+            /* Gap between card and button */
+        }
+
+        /* Upload View (Initial State) */
+        .upload-view {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .upload-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 4rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: var(--highlight-color);
+            background: rgba(255, 255, 255, 0.08);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+            transition: transform 0.3s ease;
+        }
+
+        .upload-zone:hover .upload-icon {
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        .upload-text {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .upload-subtext {
+            color: var(--text-secondary);
+        }
+
+        /* Split View (Result State) */
+        .split-view {
+            display: none;
+            /* Hidden initially */
+            display: flex;
+            /* Changed via JS */
+            width: 75vw;
+            /* Three-fourths width */
+            height: 60vh;
+            /* Adjusted height for balance */
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            overflow: hidden;
+            backdrop-filter: blur(30px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            animation: expandCard 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .image-side {
+            width: 50%;
+            height: 100%;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .uploaded-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Back to cover for better aesthetics in split view, or contain if requested */
+        }
+
+        .result-side {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem;
+            position: relative;
+        }
+
+        .emotion-display {
+            font-size: 4rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            animation: slideUp 0.5s 0.2s backwards;
+        }
+
+        .confidence-pill {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            animation: slideUp 0.5s 0.3s backwards;
+        }
+
+        /* Bottom Fixed Button */
+        .bottom-actions {
+            position: relative;
+            /* layout flow instead of absolute */
+            bottom: auto;
+            left: auto;
+            transform: none;
+            z-index: 50;
+            margin-top: 0;
+            /* Handled by gap in main-container */
+        }
+
+        .action-btn {
+            background: var(--highlight-color);
+            color: #fff;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            display: none;
+            /* Hidden until result shown */
+            animation: fadeIn 0.5s 0.5s backwards;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(220, 20, 60, 0.4);
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Circular Loader */
+        .progress-ring {
+            width: 120px;
+            height: 120px;
+        }
+
+        .progress-ring__circle {
+            stroke: var(--highlight-color);
+            stroke-width: 8;
+            fill: transparent;
+            r: 52;
+            cx: 60;
+            cy: 60;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+            stroke-dasharray: 326.72;
+            /* 2 * PI * r */
+            stroke-dashoffset: 326.72;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+
+        .loading-text {
+            position: absolute;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .loading-label {
+            margin-top: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .error-message {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 77, 77, 0.9);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 300;
+            display: none;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+
+        @keyframes expandCard {
+            from {
+                width: 500px;
+                height: 500px;
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Hide elements helper */
+        .hidden {
+            display: none !important;
+        }
+
+        .flex {
+            display: flex !important;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="config.js?v=2"></script>
+
+    <!-- Header -->
+    <header class="app-header">
+        <a href="index.html" class="nav-btn">← Back</a>
+        <h1 class="page-title">Emotion Recognition</h1>
+        <a href="https://github.com/Grover1204/Grovers-portfolio" target="_blank" class="nav-btn">
+            GitHub ↗
+        </a>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-container">
+
+        <!-- View 1: Upload -->
+        <div class="upload-view" id="uploadView">
+            <div class="upload-zone" id="dropZone">
+                <div class="upload-icon">📸</div>
+                <div class="upload-text">Drop image here or click to upload</div>
+                <div class="upload-subtext">Supports high-res JPG, PNG</div>
+                <input type="file" id="fileInput" accept="image/*" hidden>
+            </div>
+        </div>
+
+        <!-- View 2: Split Result (Hidden initially) -->
+        <div class="split-view hidden" id="splitView">
+            <div class="image-side">
+                <img id="imagePreview" class="uploaded-image" src="" alt="Analyzed Face">
+            </div>
+            <div class="result-side" id="resultSide">
+                <div class="emotion-display" id="emotionOutput"></div>
+                <div class="confidence-pill" id="confidenceOutput"></div>
+            </div>
+        </div>
+
+        <!-- Bottom Action Button -->
+        <div class="bottom-actions">
+            <button class="action-btn" id="retryBtn" onclick="resetUI()">Analyze Another Image</button>
+        </div>
+
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loader">
+        <div style="position: relative; display: flex; justify-content: center; align-items: center;">
+            <svg class="progress-ring">
+                <circle class="progress-ring__circle" id="progressCircle" />
+            </svg>
+            <div class="loading-text" id="loadingPercent">0%</div>
+        </div>
+        <div class="loading-label">Analyzing...</div>
+    </div>
+
+    <!-- Error Toast -->
+    <div class="error-message" id="errorMessage"></div>
+
+    <script>
+        // DOM Elements
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadView = document.getElementById('uploadView');
+        const splitView = document.getElementById('splitView');
+        const imagePreview = document.getElementById('imagePreview');
+        const resultSide = document.getElementById('resultSide');
+        const emotionOutput = document.getElementById('emotionOutput');
+        const confidenceOutput = document.getElementById('confidenceOutput');
+        const retryBtn = document.getElementById('retryBtn');
+        const loader = document.getElementById('loader');
+        const progressCircle = document.getElementById('progressCircle');
+        const loadingPercent = document.getElementById('loadingPercent');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Circular Progress Setup
+        const radius = 52;
+        const circumference = 2 * Math.PI * radius;
+        progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+        progressCircle.style.strokeDashoffset = circumference;
+
+        function setProgress(percent) {
+            const offset = circumference - (percent / 100) * circumference;
+            progressCircle.style.strokeDashoffset = offset;
+            loadingPercent.innerText = `${percent}%`;
+        }
+
+        // Upload Event Listeners
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        // Main Logic
+        async function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showError('Please upload a valid image file');
+                return;
+            }
+
+            // Preview Image
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                startAnalysis(file);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function startAnalysis(file) {
+            // UI Transition: Show Loader
+            loader.style.display = 'flex';
+            setProgress(0);
+
+            // Fake progress animation up to 90%
+            let progress = 0;
+            const interval = setInterval(() => {
+                if (progress < 90) {
+                    progress += Math.random() * 5; // Random increments
+                    if (progress > 90) progress = 90;
+                    setProgress(Math.round(progress));
+                }
+            }, 100);
+
+            try {
+                const token = window.portfolioConfig?.tokens?.huggingFace;
+                if (!token) throw new Error("API Token missing in config.js");
+
+                const formData = new FormData();
+                formData.append('file', file);
+                const apiUrl = "https://grover1204-facial-expression.hf.space/predict";
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+
+                const result = await response.json();
+
+                // Complete Animation
+                clearInterval(interval);
+                setProgress(100);
+
+                setTimeout(() => {
+                    showResult(result);
+                }, 500); // Short delay to see 100%
+
+            } catch (error) {
+                clearInterval(interval);
+                loader.style.display = 'none';
+                console.error(error);
+                showError("Analysis failed. Please try again.");
+            }
+        }
+
+        function showResult(result) {
+            const emotion = result.emotion || "Unknown";
+            const confidence = (result.confidence || 0) * 100;
+            const config = getEmotionConfig(emotion);
+
+            // Hide Loader
+            loader.style.display = 'none';
+
+            // Switch to Split View
+            uploadView.classList.add('hidden');
+            splitView.classList.remove('hidden');
+            splitView.classList.add('flex');
+            retryBtn.style.display = 'block';
+
+            // Update Content
+            emotionOutput.innerHTML = `${config.emoji}<br>${emotion}`;
+            emotionOutput.style.color = config.color;
+            emotionOutput.style.textShadow = `0 0 50px ${config.color}80`;
+
+            confidenceOutput.innerText = `Confidence: ${confidence.toFixed(1)}%`;
+            resultSide.style.backgroundColor = `${config.color}08`; // Very subtle tint
+        }
+
+        function resetUI() {
+            splitView.classList.add('hidden');
+            splitView.classList.remove('flex');
+            retryBtn.style.display = 'none';
+            uploadView.classList.remove('hidden');
+            fileInput.value = '';
+
+            // Auto open dialog
+            setTimeout(() => fileInput.click(), 100);
+        }
+
+        function showError(msg) {
+            errorMessage.innerText = msg;
+            errorMessage.style.display = 'block';
+            setTimeout(() => errorMessage.style.display = 'none', 3000);
+        }
+
+        function getEmotionConfig(emotion) {
+            const e = (emotion || "").toLowerCase();
+            const configs = {
+                'happy': { emoji: '😃', color: '#00ff88' }, // Green
+                'sad': { emoji: '😢', color: '#4da6ff' },   // Blue
+                'angry': { emoji: '😡', color: '#ff4d4d' }, // Red
+                'fear': { emoji: '😱', color: '#a64dff' },  // Purple
+                'surprise': { emoji: '😲', color: '#ffff4d' }, // Yellow
+                'neutral': { emoji: '😐', color: '#cccccc' }, // Grey
+                'disgust': { emoji: '🤢', color: '#88cc00' }  // Lime
+            };
+            return configs[e] || { emoji: '🤔', color: '#ffffff' };
+        }
+    </script>
+</body>
+
+</html>
