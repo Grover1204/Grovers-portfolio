@@ -100,18 +100,19 @@
                 particle.draw(ctx);
             });
 
-            // Draw connecting lines - REMOVED for "fully black" design
-            /* 
+            // Draw connecting lines - Optimized distance
+            // Only connect if really close to avoid n^2 perf hit on widespread particles
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
             ctx.lineWidth = 0.5;
-            
+
             for (let i = 0; i < particles.length; i++) {
                 for (let j = i + 1; j < particles.length; j++) {
                     const dx = particles[i].x - particles[j].x;
                     const dy = particles[i].y - particles[j].y;
+                    // Squared distance check is faster than Math.sqrt
                     const distSq = dx * dx + dy * dy;
-                    
-                    if (distSq < 10000) {
+
+                    if (distSq < 10000) { // sqrt(10000) = 100px distance
                         ctx.beginPath();
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
@@ -119,7 +120,6 @@
                     }
                 }
             }
-            */
 
             requestAnimationFrame(animate);
         }
