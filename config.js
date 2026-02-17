@@ -4,7 +4,7 @@
 
 // This file makes it easy to customize your portfolio without editing multiple files
 
-const portfolioConfig = {
+window.portfolioConfig = {
     // ===== Personal Information =====
     personal: {
         name: 'Rahul Modugu',
