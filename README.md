@@ -2,6 +2,10 @@
 
 A modern, responsive portfolio website built with HTML, CSS, and JavaScript. Inspired by the Antigravity Google design with a dark, professional aesthetic.
 
+## 🔗 Live Demo
+[**View Live Project**](https://Grover1204.github.io/Grovers-portfolio/)
+
+
 ## 📁 Project Structure
 
 ```

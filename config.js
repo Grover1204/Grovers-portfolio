@@ -116,8 +116,13 @@ const portfolioConfig = {
     // WARNING: In a real production app, never expose tokens in client-side code.
     // Use a backend proxy instead. For this portfolio demo, it allows direct access.
     tokens: {
-        huggingFace: 'YOUR_HUGGING_FACE_TOKEN'
-    }
+        huggingFace: null // Removed for security
+    },
+
+    // ===== Firebase Configuration =====
+    // REMOVED as per user request
+    firebase: null
+
 };
 
 // Export for use in other files (if using modules)

@@ -5,73 +5,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rahul Modugu | Portfolio</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/responsive.css">
-    <link rel="stylesheet" href="css/animations.css">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="./css/styles.css?v=5">
+    <link rel="stylesheet" href="./css/responsive.css?v=5">
+    <link rel="stylesheet" href="./css/animations.css?v=5">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body>
     <!-- Config Loader -->
-    <script src="config.js"></script>
+    <script src="config.js?v=4"></script>
 
     <!-- Navigation -->
-    <nav class="navbar">
-        <div class="logo">RM</div>
-        <ul class="nav-links">
-            <li><a href="#hero">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#skills">Skills</a></li>
-            <li><a href="#projects">Projects</a></li>
-            <li><a href="#contact">Contact</a></li>
-        </ul>
-        <div class="hamburger">
-            <div class="line"></div>
-            <div class="line"></div>
-            <div class="line"></div>
+    <nav class="navbar" id="navbar">
+        <div class="container nav-content">
+            <div class="nav-left">
+                <img src="./images/P1011045.JPG" alt="Rahul Modugu" class="profile-img">
+                <a href="#hero" class="logo">RM</a>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#hero">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <button class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </nav>
 
     <!-- Hero Section -->
     <section id="hero" class="hero">
-        <div class="hero-content">
-            <h1 class="animate-text">Hi, I'm <span class="highlight">Rahul Modugu</span></h1>
-            <p class="animate-text delay-1">Developer & AI Enthusiast</p>
-            <div class="cta-buttons animate-text delay-2">
-                <a href="#projects" class="btn primary">View My Work</a>
-                <a href="#contact" class="btn secondary">Get In Touch</a>
+        <canvas id="particleCanvas"></canvas>
+        <div class="container hero-content">
+            <div class="hero-text">
+                <h1 class="animate-text">Hi, I'm <span class="highlight">Rahul Modugu</span></h1>
+                <p class="animate-text delay-1 subtitle">Developer & AI Enthusiast</p>
+                <div class="cta-buttons animate-text delay-2">
+                    <a href="#projects" class="btn btn-primary">View My Work</a>
+                    <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+                </div>
             </div>
-        </div>
-        <div class="hero-image animate-img">
-            <img src="images/profile.jpg" alt="Rahul Modugu" id="profile-img">
+            <div class="hero-visual animate-img">
+                <div class="floating-card">
+                    <div class="code-snippet">
+                        <span class="code-line"><span class="keyword">const</span> <span
+                                class="function">developer</span> = {</span>
+                        <span class="code-line indent"><span class="string">model</span>: <span
+                                class="string">"Human.v1"</span>,</span>
+                        <span class="code-line indent"><span class="string">trainedOn</span>: <span class="string">"Data
+                                & Curiosity"</span>,</span>
+                        <span class="code-line indent"><span class="string">optimizes</span>: <span
+                                class="string">"Accuracy"</span>,</span>
+                        <span class="code-line indent"><span class="string">coffee</span>: <span
+                                class="keyword">true</span></span>
+                        <span class="code-line">};</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- About Section -->
     <section id="about" class="about">
         <h2 class="section-title">About Me</h2>
-        <div class="about-container">
-            <div class="about-text">
-                <p>I'm passionate about solving real-world problems through code and machine learning. With experience
-                    in backend development, AI/ML, and full-stack applications, I love creating solutions that make a
-                    difference.</p>
-                <p>My journey spans multiple domains - from facial emotion recognition and vehicle detection to stock
-                    price prediction and mobile app development. I believe in continuous learning and adapting to new
-                    technologies.</p>
+        <div class="container about-container">
+            <div class="about-text" id="about-text">
+                <!-- Populated by JS -->
             </div>
-            <div class="stats-container">
-                <div class="stat-box">
-                    <h3>19+</h3>
-                    <p>Projects</p>
-                </div>
-                <div class="stat-box">
-                    <h3>5+</h3>
-                    <p>Languages</p>
-                </div>
-                <div class="stat-box">
-                    <h3>∞</h3>
-                    <p>Passion</p>
-                </div>
+            <div class="stats" id="stats">
+                <!-- Populated by JS -->
             </div>
         </div>
     </section>
@@ -79,7 +85,7 @@
     <!-- Skills Section -->
     <section id="skills" class="skills">
         <h2 class="section-title">Skills & Technologies</h2>
-        <div class="skills-grid" id="skills-grid">
+        <div class="container skills-grid" id="skillsGrid">
             <!-- Skills will be populated by JS -->
         </div>
     </section>
@@ -87,7 +93,7 @@
     <!-- Projects Section -->
     <section id="projects" class="projects">
         <h2 class="section-title">Featured Projects</h2>
-        <div class="projects-grid" id="projects-grid">
+        <div class="container projects-grid" id="projectsGrid">
             <!-- Projects will be populated by JS -->
         </div>
     </section>
@@ -95,20 +101,16 @@
     <!-- Contact Section -->
     <section id="contact" class="contact">
         <h2 class="section-title">Let's Connect</h2>
-        <div class="contact-container">
-            <div class="social-links">
-                <a href="https://github.com/Grover1204" target="_blank" class="social-icon"><i
+        <div class="container contact-content">
+            <p>I'm always open to discussing new projects, creative ideas or opportunities to be part of your visions.
+            </p>
+            <div class="contact-links">
+                <a href="https://github.com/Grover1204" target="_blank" class="contact-link"><i
                         class="fab fa-github"></i> GitHub</a>
-                <a href="https://www.linkedin.com/in/rahul-modugu-a707051b1/" target="_blank" class="social-icon"><i
+                <a href="https://www.linkedin.com/in/rahul-modugu-a707051b1/" target="_blank" class="contact-link"><i
                         class="fab fa-linkedin"></i> LinkedIn</a>
-                <a href="mailto:contact@example.com" class="social-icon"><i class="fas fa-envelope"></i> Email</a>
+                <a href="mailto:contact@example.com" class="contact-link"><i class="fas fa-envelope"></i> Email</a>
             </div>
-            <form class="contact-form">
-                <input type="text" placeholder="Name" required>
-                <input type="email" placeholder="Email" required>
-                <textarea placeholder="Message" rows="5" required></textarea>
-                <button type="submit" class="btn primary">Send Message</button>
-            </form>
         </div>
     </section>
 
@@ -116,9 +118,10 @@
         <p>&copy; 2024 Rahul Modugu. All rights reserved.</p>
     </footer>
 
-    <script src="js/main.js"></script>
-    <script src="js/projects-data.js"></script>
-    <script src="js/projects.js"></script>
+    <script src="js/main.js?v=4"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/projects-data.js?v=4"></script>
+    <script src="js/projects.js?v=4"></script>
 </body>
 
 </html>
