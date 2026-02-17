@@ -100,8 +100,8 @@
                 particle.draw(ctx);
             });
 
-            // Draw connecting lines - REMOVED for "fully black" design
-            /* 
+            // Draw connecting lines - Optimized distance
+            // Only connect if really close to avoid n^2 perf hit on widespread particles
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
             ctx.lineWidth = 0.5;
 
@@ -120,7 +120,6 @@
                     }
                 }
             }
-            */
 
             requestAnimationFrame(animate);
         }
