@@ -29,7 +29,7 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
         'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
         sans-serif;
-    background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%);
+    background: #000000;
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
@@ -452,30 +452,13 @@ body {
 
 /* Background decoration */
 /* Background decoration - Optimized */
+/* Background decoration - REMOVED for "fully black" design */
 .projects::before {
-    content: '';
-    position: absolute;
-    top: 20%;
-    left: 0;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, var(--highlight-color) 0%, transparent 70%);
-    opacity: 0.1;
-    z-index: 0;
-    /* filter: blur(150px); Removed for performance */
+    display: none;
 }
 
 .projects::after {
-    content: '';
-    position: absolute;
-    bottom: 20%;
-    right: 0;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, #4ec9b0 0%, transparent 70%);
-    opacity: 0.1;
-    z-index: 0;
-    /* filter: blur(150px); Removed for performance */
+    display: none;
 }
 
 .projects .container {
