@@ -27,12 +27,18 @@
                 this.y = Math.random() * canvas.height;
                 this.vx = (Math.random() - 0.5) * 0.5;
                 this.vy = (Math.random() - 0.5) * 0.5;
-                this.radius = Math.random() * 1.5 + 0.5;
+                // Increased size by ~25% (was 1.5 + 0.5 -> roughly 2.0 + 0.6)
+                this.radius = Math.random() * 2.0 + 0.6;
                 this.opacity = Math.random() * 0.5 + 0.3;
                 this.baseOpacity = this.opacity;
+                this.history = []; // Trail history
+                this.isAttracted = false; // Flag to track if moving towards mouse
             }
 
             update() {
+                // Reset attraction flag
+                this.isAttracted = false;
+
                 // Add subtle drift
                 this.vx += (Math.random() - 0.5) * 0.01;
                 this.vy += (Math.random() - 0.5) * 0.01;
@@ -49,6 +55,7 @@
                     const maxDistance = 250;
 
                     if (distance < maxDistance) {
+                        this.isAttracted = true; // Mark as being effectively attracted
                         const attractionStrength = (maxDistance - distance) / maxDistance * 0.05; // Reduced strength
                         this.vx += (dx / distance) * attractionStrength;
                         this.vy += (dy / distance) * attractionStrength;
@@ -59,12 +66,45 @@
                 this.x += this.vx;
                 this.y += this.vy;
 
+                // Update Trail History
+                // Save current position
+                this.history.push({ x: this.x, y: this.y });
+                // Limit trail length (Increased from 8 to 20 for longer tails)
+                if (this.history.length > 20) {
+                    this.history.shift();
+                }
+
                 // Bounce off edges
                 if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
                 if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
             }
 
             draw(ctx) {
+                // Draw Trail - Tapered and Fading
+                if (this.history.length > 1) {
+                    for (let i = 0; i < this.history.length - 1; i++) {
+                        const point = this.history[i];
+                        const nextPoint = this.history[i + 1];
+
+                        // Calculate progress (0 at tail end, 1 at head)
+                        const progress = i / this.history.length;
+
+                        ctx.beginPath();
+                        ctx.moveTo(point.x, point.y);
+                        ctx.lineTo(nextPoint.x, nextPoint.y);
+
+                        // Tapered opacity: Fades out towards the end of the tail
+                        // Tapered width: Thinner at the end of the tail
+                        const alpha = this.opacity * progress * 0.6; // Max opacity 0.6 * particle opacity
+                        const lineWidth = this.radius * progress; // Max width is particle radius
+
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+                        ctx.lineWidth = lineWidth;
+                        ctx.lineCap = 'round';
+                        ctx.stroke();
+                    }
+                }
+
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
@@ -101,21 +141,31 @@
             });
 
             // Draw connecting lines - Optimized distance
-            // Only connect if really close to avoid n^2 perf hit on widespread particles
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-            ctx.lineWidth = 0.5;
+            // Increased thickness and distance
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'; // Increased opacity slightly
+            ctx.lineWidth = 1.0; // Increased from 0.5
 
             for (let i = 0; i < particles.length; i++) {
+                // Skip connection logic if this particle is being attracted
+                if (particles[i].isAttracted) continue;
+
                 for (let j = i + 1; j < particles.length; j++) {
+                    // Skip connection if the other particle is being attracted
+                    if (particles[j].isAttracted) continue;
+
                     const dx = particles[i].x - particles[j].x;
                     const dy = particles[i].y - particles[j].y;
                     // Squared distance check is faster than Math.sqrt
+                    // Increased distance: sqrt(40000) = 200px (was 150px)
                     const distSq = dx * dx + dy * dy;
 
-                    if (distSq < 10000) { // sqrt(10000) = 100px distance
+                    if (distSq < 40000) {
                         ctx.beginPath();
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
+                        // Dynamic opacity based on distance for smoother look
+                        const alpha = 1 - (distSq / 40000);
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.2})`;
                         ctx.stroke();
                     }
                 }

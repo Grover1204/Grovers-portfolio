@@ -139,80 +139,42 @@ Elements fade in as they come into view for a polished scrolling experience.
 ### Parallax Effect
 Hero section has a subtle parallax effect on scroll.
 
-## 📝 How to Use
+## 🚀 Quick Start in 5 Minutes
 
-1. **Open in Browser**: Simply open `index.html` in any modern web browser
-2. **No Server Needed**: Works perfectly with just the file system
-3. **Mobile Preview**: Test on mobile devices or use browser developer tools
+1.  **Open in Browser**: Simply double-click `index.html`. No server needed!
+2.  **Update Email**: Edit `index.html` line 220 to your actual email.
+3.  **Personalize**: Edit `config.js` to change your name, title, and social links.
+4.  **Add Projects**: Edit `js/projects.js` to showcase your own work.
 
-### Local Development
-If you want to use a local server:
+## 🎨 Customization Guide
 
-```bash
-# Using Python 3
-python -m http.server 8000
-
-# Using Python 2
-python -m SimpleHTTPServer 8000
-
-# Using Node.js
-npx http-server
+### Changing Colors
+Edit `config.js` (lines 27-37) to change the entire theme.
+```javascript
+colors: {
+    highlight: '#e94560',  // Change this hex color for main accent
+    primary: '#1a1a2e',    // Background color
+}
 ```
 
-Then open `http://localhost:8000` in your browser.
+### Updating Skills
+Edit `config.js` or `index.html` (lines 152-176) to list your specific technologies.
 
-## 🎯 Sections Overview
+### Adding Social Links
+Update the `socialLinks` object in `config.js`:
+```javascript
+socialLinks: {
+    github: 'https://github.com/yourusername',
+    linkedin: 'https://linkedin.com/in/yourprofile',
+    email: 'you@example.com'
+}
+```
 
-1. **Hero**: Eye-catching introduction with CTA buttons
-2. **About**: Personal background and achievements
-3. **Skills**: Categorized technical skills
-4. **Projects**: Showcases all your projects with links
-5. **Contact**: Links to social profiles and email
-6. **Navigation**: Fixed header with smooth scrolling
-
-## ♿ Accessibility
-
-- Semantic HTML structure
-- Keyboard navigation support
-- Proper color contrast
-- ARIA-friendly markup
-- Mobile-first approach
-
-## 🚀 Performance Tips
-
-- Minimal CSS and JavaScript files
-- No external dependencies
-- Optimized animations (GPU-accelerated)
-- Efficient scrolling event listeners
-- Lazy-loaded project cards
-
-## 🔗 Links to Update
-
-Make sure to update these in the HTML:
-
-1. **GitHub URL**: Line 218
-2. **LinkedIn URL**: Line 219
-3. **Email**: Line 220
-4. **Project Links**: Update in `js/projects.js`
-
-## 💡 Future Enhancements
-
-- Add a blog section
-- Implement dark/light theme toggle
-- Add contact form with email integration
-- Add testimonials section
-- Add certificate/achievement gallery
-- Implement project filtering by category
+## 📁 File Structure
+- **index.html**: Main structure and content.
+- **config.js**: Easy configuration settings.
+- **css/**: Styles (`styles.css` for main, `responsive.css` for mobile).
+- **js/**: Logic (`main.js` for interactivity, `projects.js` for data).
 
 ## 📄 License
-
 This portfolio template is free to use and modify for personal projects.
-
-## 🤝 Support
-
-For questions or improvements, feel free to modify the files directly and experiment with different styles and layouts!
-
----
-
-**Last Updated**: February 2026
-**Version**: 1.0
